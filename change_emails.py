@@ -26,7 +26,9 @@ class ChangeEmails:
             exit(1)
 
         for idx, account in enumerate(accounts_empresa):
-            if account["name"] == "E19849":
+            if account["name"] == "E3369":
+            # if idx > 10:
+            #     break
 
                 account_name = account["name"]
                 empresa_name = account.get("additionalAttributes", {}).get("empresa")
@@ -74,8 +76,8 @@ class ChangeEmails:
 
                     print_log(f"\n[SYSTEM] Apagando o Transfer Site '{site_name}'...")
                     process_result = self.st_api.process_request(
-                        ok_message=f"ST: Transfer Site Deletado com Sucesso!",
-                        fail_message=f"ST: Falha ao Deletar o Transfer Site."
+                        ok_message=f"[SUCCESS]: Transfer Site Deletado com Sucesso!",
+                        fail_message=f"[ERROR]: Falha ao Deletar o Transfer Site."
                         "\nSegue abaixo a mensagem de erro: \nERROR_MESSAGE\n",
                         status_code=204,
                         api_request=self.st_api.delete_requests(
@@ -85,23 +87,23 @@ class ChangeEmails:
 
                     if process_result is False:
                         print_log(
-                            message=f"[SYSTEM] O Transfer Site não foi Deletado, então ele será mantido na lista de Sites Não Apagados.",
+                            message=f"[WARN] O Transfer Site não foi Deletado, então ele será mantido na lista de Sites Não Apagados.",
                             log_type="warn"
                         )
                         sites_not_deletes.append(site_name)
 
                 if sites_not_deletes:
-                     print_log(
+                    print_log(
                         message=(
-                            "\n[SYSTEM] Os seguintes Transfer Sites NÃO foram apagados:\n - " +
+                            "\n[WARN] Os seguintes Transfer Sites NÃO foram apagados:\n - " +
                             "\n - ".join(sites_not_deletes)
                         ),
                         log_type="warn"
                     )
                 else:
                     print_log(
-                        message="\n[SYSTEM] Todos os Transfer Sites foram apagados com sucesso.",
-                        log_type="success"
+                        message="\n[SUCCESS] Todos os Transfer Sites foram apagados com Sucesso.",
+                        log_type="info"
                     )
 
         print_log(f"\n\nTodos os Processos foram finalizados. Encerrando o Programa...\n")
@@ -116,7 +118,7 @@ class ChangeEmails:
 
         if subs_ADV_NOTIFY is False:
             print_log(
-                message=f"Não é possível prosseguir. Encerrando programa!\n",
+                message=f"[ERROR] Não é possível prosseguir. Encerrando programa!\n",
                 log_type="error"
             )
             exit(1)
@@ -130,8 +132,8 @@ class ChangeEmails:
             )
 
             process_result = self.st_api.process_request(
-                ok_message=f"ST: Subscription ADV NOTIFY deletado com Sucesso!",
-                fail_message=f"ST: Falha ao Deletar o Subscription ADV NOTIFY."
+                ok_message=f"[SUCCESS]: Subscription ADV NOTIFY deletado com Sucesso!",
+                fail_message=f"[ERROR]: Falha ao Deletar o Subscription ADV NOTIFY."
                 "\nSegue abaixo a mensagem de erro: \nERROR_MESSAGE\n",
                 status_code=204,
                 api_request=self.st_api.delete_requests(
@@ -145,7 +147,7 @@ class ChangeEmails:
 
         if falhas:
             print_log(
-                message=f"[SYSTEM] As seguintes Subscriptions não foram deletadas: \n - " + "\n - ".join(falhas),
+                message=f"[WARN] As seguintes Subscriptions não foram deletadas: \n - " + "\n - ".join(falhas),
                 log_type="warn"
             )
 

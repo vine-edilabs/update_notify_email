@@ -19,8 +19,8 @@ class RequestsForChange:
         accounts_empresas: list = []
 
         process_result = self.st_api.process_request(
-            ok_message="ST: Total de Contas obtidos com sucesso.",
-            fail_message="ST: Falha ao obter o Total de Contas.\nSegue abaixo: ERROR_MESSAGE\n",
+            ok_message="[SUCCESS]: Total de Contas obtidos com Sucesso.",
+            fail_message="[ERROR]: Falha ao obter o Total de Contas.\nSegue abaixo: ERROR_MESSAGE\n",
             status_code=200,
             api_request=self.st_api.get_requests(
                 endpoint="accounts?fields=type%2Cname%2ChomeFolder%2Cnotes%2CadditionalAttributes&name=E%2A&offset=0&type=user"
@@ -74,8 +74,8 @@ class RequestsForChange:
         )
 
         process_result = self.st_api.process_request(
-            ok_message=f"ST: Transfer Sites do Account de Empresa '{account_name}' obtidos.",
-            fail_message=f"ST: Falha ao obter os Tranfer Sites do Account de Empresa '{account_name}' "
+            ok_message=f"[SUCCESS]: Transfer Sites do Account de Empresa '{account_name}' obtidos.",
+            fail_message=f"[ERROR]: Falha ao obter os Tranfer Sites do Account de Empresa '{account_name}' "
             "Segue abaixo a mensagem de erro: ERROR_MESSAGE\n",
             status_code=200,
             api_request=self.st_api.get_requests(
@@ -87,7 +87,7 @@ class RequestsForChange:
 
         if not process_result.get("result"):
             print_log(
-                message=f"O Account '{account_name}' não possui Sites.",
+                message=f"[WARN] O Account '{account_name}' não possui Sites.",
                 log_type="warn"
             )
             return []
@@ -114,8 +114,8 @@ class RequestsForChange:
             print_log(f"\nAdicionando o(s) Email(s) '{emails}' na Conta Empresa '{account_name}'.")
 
             add_email_process_result = self.st_api.process_request(
-                ok_message=f"ST: O(s) Email(s) foi adicionado no Application '{application_name}' com sucesso!",
-                fail_message=f"ST: Falha ao adicionar o(s) Email(s) no Application '{application_name}'."
+                ok_message=f"[SUCCESS]: O(s) Email(s) foi adicionado no Application '{application_name}' com SUCCESSo!",
+                fail_message=f"[ERROR]: Falha ao adicionar o(s) Email(s) no Application '{application_name}'."
                 "\nSegue abaixo a mensagem de erro: \nERROR_MESSAGE",
                 status_code=204,
                 api_request=self.st_api.patch_requests(
@@ -131,7 +131,7 @@ class RequestsForChange:
 
         if falhas:
             print_log(
-                message=f"\nFalha ao Adicionar o(s) Email(s) nos seguites Applications: \n - " + "\n - ".join(falhas),
+                message=f"\n[ERROR] Falha ao Adicionar o(s) Email(s) nos seguites Applications: \n - " + "\n - ".join(falhas),
                 log_type="error"
             )
             return falhas
@@ -145,8 +145,8 @@ class RequestsForChange:
         )
 
         process_result = self.st_api.process_request(
-            ok_message=f"ST: Quantidade Total de Subscriptions ADV NOTIFY obtida.",
-            fail_message=f"ST: Falha ao obter a Quantidade Total de Subscriptions ADV NOTIFY."
+            ok_message=f"[SUCCESS]: Quantidade Total de Subscriptions ADV NOTIFY obtida.",
+            fail_message=f"[ERROR]: Falha ao obter a Quantidade Total de Subscriptions ADV NOTIFY."
             "\nSegue abaixo a mensagem de erro: \nERROR_MESSAGE\n",
             status_code=200,
             api_request=self.st_api.get_requests(
@@ -156,7 +156,7 @@ class RequestsForChange:
 
         total = process_result.get("resultSet", {}).get("totalCount", 0)
         if total == 0:
-            print_log("Nenhuma subscription ADV NOTIFY encontrada.", "warn")
+            print_log("\n[WARN] Nenhuma subscription ADV NOTIFY encontrada.", "warn")
             return False
 
         print_log(f"Total de subscriptions ADV NOTIFY encontradas: {total}")
@@ -181,13 +181,13 @@ class RequestsForChange:
                 try:
                     all_subscriptions.extend(future.result())
                 except Exception as e:
-                    print_log(f"Erro ao processar página de subscriptions: {e}", "error")
+                    print_log(f"[ERROR] Erro ao processar página de subscriptions: {e}", "error")
 
         print_log(f"\nTotal de subscriptions ADV NOTIFY carregadas: {len(all_subscriptions)}\n")
 
         if not all_subscriptions:
             print_log(
-                message=f"\nNenhuma conta possui a Subscription ADV NOTIFY.",
+                message=f"\n[WARN] Nenhuma conta possui a Subscription ADV NOTIFY.",
                 log_type="warn"
             )
             return False
