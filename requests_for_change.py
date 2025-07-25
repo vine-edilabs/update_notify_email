@@ -137,3 +137,59 @@ class RequestsForChange:
             return falhas
             
         return True
+    
+    def get_subscriptions_ADV_NOTIFY(self):
+        print_log(
+            message=f"[SYSTEM] Iniciando o Processo de Busca das Subscriptions ADV NOTIFY.\n",
+            log_type="info"
+        )
+
+        process_result = self.st_api.process_request(
+            ok_message=f"ST: Quantidade Total de Subscriptions ADV NOTIFY obtida.",
+            fail_message=f"ST: Falha ao obter a Quantidade Total de Subscriptions ADV NOTIFY."
+            "\nSegue abaixo a mensagem de erro: \nERROR_MESSAGE\n",
+            status_code=200,
+            api_request=self.st_api.get_requests(
+                endpoint="subscriptions?application=ADV_NOTIFY&fields=id&offset=0"
+            ),
+        )
+
+        total = process_result.get("resultSet", {}).get("totalCount", 0)
+        if total == 0:
+            print_log("Nenhuma subscription ADV NOTIFY encontrada.", "warn")
+            return False
+
+        print_log(f"Total de subscriptions ADV NOTIFY encontradas: {total}")
+
+        offsets = list(range(0, total, 100))
+        all_subscriptions = []
+
+        def fetch_page(offset):
+            result = self.st_api.process_request(
+                ok_message=f"ST: Página offset {offset} OK.",
+                fail_message=f"ST: Falha na página offset {offset}.",
+                status_code=200,
+                api_request=self.st_api.get_requests(
+                    endpoint=f"subscriptions?application=ADV_NOTIFY&fields=type%2Cid%2Caccount%2Cfolder%2Capplication&offset={offset}"
+                ),
+            ).get("result", [])
+            return result
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(fetch_page, offset) for offset in offsets]
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    all_subscriptions.extend(future.result())
+                except Exception as e:
+                    print_log(f"Erro ao processar página de subscriptions: {e}", "error")
+
+        print_log(f"\nTotal de subscriptions ADV NOTIFY carregadas: {len(all_subscriptions)}\n")
+
+        if not all_subscriptions:
+            print_log(
+                message=f"\nNenhuma conta possui a Subscription ADV NOTIFY.",
+                log_type="warn"
+            )
+            return False
+        
+        return all_subscriptions

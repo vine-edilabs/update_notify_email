@@ -104,4 +104,49 @@ class ChangeEmails:
                         log_type="success"
                     )
 
-        print_log(f"\n\nTodos os Processos foram finalizados. Encerrando o Programa...\n")               
+        print_log(f"\n\nTodos os Processos foram finalizados. Encerrando o Programa...\n")
+
+    def delete_subs_ADV_NOTIFY(self):
+        print_log(
+            message=f"\n\nIniciando o Processo de Delete de todas as Subscriptions ADV NOTIFY.\n",
+            log_type="info"
+        )
+
+        subs_ADV_NOTIFY = self.requests_for_change.get_subscriptions_ADV_NOTIFY()
+
+        if subs_ADV_NOTIFY is False:
+            print_log(
+                message=f"Não é possível prosseguir. Encerrando programa!\n",
+                log_type="error"
+            )
+            exit(1)
+
+        falhas = []
+
+        for subscription in subs_ADV_NOTIFY:
+            print_log(
+                message=f"[SYSTEM] Deletando a Subscription '{subscription['folder']}'",
+                log_type="warn"
+            )
+
+            process_result = self.st_api.process_request(
+                ok_message=f"ST: Subscription ADV NOTIFY deletado com Sucesso!",
+                fail_message=f"ST: Falha ao Deletar o Subscription ADV NOTIFY."
+                "\nSegue abaixo a mensagem de erro: \nERROR_MESSAGE\n",
+                status_code=204,
+                api_request=self.st_api.delete_requests(
+                    endpoint=f"subscriptions/{subscription['id']}"
+                ),
+            )
+
+            if process_result is False:
+                falhas.append(f"Subscription: {subscription['folder']}")
+                continue
+
+        if falhas:
+            print_log(
+                message=f"[SYSTEM] As seguintes Subscriptions não foram deletadas: \n - " + "\n - ".join(falhas),
+                log_type="warn"
+            )
+
+        print_log(f"\n\nTodos os Processos foram finalizados. Encerrando o Programa...\n")
